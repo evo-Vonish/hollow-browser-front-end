@@ -49,7 +49,7 @@ export default function Results() {
   }
 
   const readUrl = (url: string, title: string) =>
-    `/read?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&q=${encodeURIComponent(q)}${scene ? `&scene=${scene}` : ''}${page > 1 ? `&page=${page}` : ''}`
+    `/?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&q=${encodeURIComponent(q)}${scene ? `&scene=${scene}` : ''}${page > 1 ? `&page=${page}` : ''}`
 
   const failedCount = state.kind === 'ok' ? Object.keys(state.data.search.engines_failed).length : 0
 

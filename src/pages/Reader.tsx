@@ -26,7 +26,7 @@ export default function Reader() {
   const [params] = useSearchParams()
   const url = params.get('url') ?? ''
   const titleParam = params.get('title') ?? ''
-  const backTo = `/results?q=${encodeURIComponent(params.get('q') ?? '')}${params.get('scene') ? `&scene=${params.get('scene')}` : ''}${params.get('page') ? `&page=${params.get('page')}` : ''}`
+  const backTo = `/?q=${encodeURIComponent(params.get('q') ?? '')}${params.get('scene') ? `&scene=${params.get('scene')}` : ''}${params.get('page') ? `&page=${params.get('page')}` : ''}`
   const [state, setState] = useState<State>({ kind: 'loading' })
 
   useEffect(() => {

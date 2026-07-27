@@ -9,7 +9,7 @@ export default function Home() {
   const [scene, setScene] = useState('')
 
   const go = (q: string) => {
-    navigate(`/results?q=${encodeURIComponent(q)}${scene ? `&scene=${scene}` : ''}`)
+    navigate(`/?q=${encodeURIComponent(q)}${scene ? `&scene=${scene}` : ''}`)
   }
 
   return (
