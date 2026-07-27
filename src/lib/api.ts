@@ -41,11 +41,13 @@ export interface FetchItem {
   fetch_status: 'ok' | 'failed' | 'timeout' | 'blocked' | 'no_content'
   engine_used: 'static' | 'dynamic' | 'stealthy'
   http_status: number | null
-  title: string | null
+  /** 注意:/v1/fetch 的 item 不返回 title/highlights(那是 /v1/research item 的字段)——全部按可选处理,禁止未判空直接访问! */
+  title?: string | null
   content: string | null
-  highlights: string[]
-  highlight_scores: number[]
-  word_count: number
+  highlights?: string[]
+  highlight_scores?: number[]
+  word_count: number | null
+  purified?: boolean | null
   error: string | null
 }
 

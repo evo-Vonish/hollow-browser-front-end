@@ -183,18 +183,18 @@ export default function Reader() {
                     <span className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] ${TIER_STYLE[clean.item.engine_used]?.cls ?? ''}`}>
                       {TIER_STYLE[clean.item.engine_used]?.label ?? clean.item.engine_used}
                     </span>
-                    <span className="font-mono text-[11px] text-ink-2">{clean.item.word_count} 字符 · 净化阅读模式</span>
+                    <span className="font-mono text-[11px] text-ink-2">{clean.item.word_count ?? '—'} 字符 · 净化阅读模式</span>
                   </div>
 
                   <h1 className="font-display text-[26px] font-bold leading-snug text-ink-0">
                     {clean.item.title || titleParam || clean.item.url}
                   </h1>
 
-                  {clean.item.highlights.length > 0 && (
+                  {(clean.item.highlights ?? []).length > 0 && (
                     <div className="mt-6 rounded-md border border-line bg-bg-1 p-4">
                       <p className="font-mono text-[11px] uppercase tracking-wider text-signal">要点</p>
                       <ul className="mt-2 space-y-1.5">
-                        {clean.item.highlights.map((h, i) => (
+                        {(clean.item.highlights ?? []).map((h, i) => (
                           <li key={i} className="flex gap-2 text-[13px] leading-relaxed text-ink-1">
                             <span className="shrink-0 font-mono text-signal/70">{i + 1}.</span>
                             {h}
