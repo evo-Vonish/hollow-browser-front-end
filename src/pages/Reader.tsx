@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ApiError, fetchApiCached, hostOf } from '@/lib/api'
 import type { FetchItem } from '@/lib/api'
+import Markdown from '@/components/Markdown'
 
 type CleanState =
   | { kind: 'loading' }
@@ -45,6 +46,7 @@ export default function Reader() {
   const [webReady, setWebReady] = useState(false)
   const [tab, setTab] = useState<Tab | null>(null)
   const [stage, setStage] = useState(0)
+  const [mdView, setMdView] = useState<'md' | 'txt'>('md')
 
   const cleanOk = clean.kind === 'ok' && clean.item.fetch_status === 'ok'
   const cleanFailed =
@@ -184,6 +186,13 @@ export default function Reader() {
                       {TIER_STYLE[clean.item.engine_used]?.label ?? clean.item.engine_used}
                     </span>
                     <span className="font-mono text-[11px] text-ink-2">{clean.item.word_count ?? '—'} 字符 · 净化阅读模式</span>
+                    {/* Markdown 渲染 / 纯文本切换 */}
+                    <button
+                      onClick={() => setMdView(mdView === 'md' ? 'txt' : 'md')}
+                      className="ml-auto rounded-full border border-line px-2.5 py-0.5 font-mono text-[10px] text-ink-2 transition-colors hover:border-signal hover:text-signal"
+                    >
+                      {mdView === 'md' ? 'Markdown ▾' : '纯文本 ▾'}
+                    </button>
                   </div>
 
                   <h1 className="font-display text-[26px] font-bold leading-snug text-ink-0">
@@ -204,10 +213,16 @@ export default function Reader() {
                     </div>
                   )}
 
-                  <div className="mt-8 space-y-4">
-                    {(clean.item.content ?? '').split(/\n{2,}/).map((para, i) => (
-                      <p key={i} className="text-[15px] leading-[1.9] text-ink-1">{para}</p>
-                    ))}
+                  <div className="mt-8">
+                    {mdView === 'md' ? (
+                      <Markdown>{clean.item.content ?? ''}</Markdown>
+                    ) : (
+                      <div className="space-y-4">
+                        {(clean.item.content ?? '').split(/\n{2,}/).map((para, i) => (
+                          <p key={i} className="text-[15px] leading-[1.9] text-ink-1">{para}</p>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </article>
               ) : (
