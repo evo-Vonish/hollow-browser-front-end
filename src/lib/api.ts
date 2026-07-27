@@ -1,7 +1,11 @@
 /**
- * HOLLOW API 客户端 —— 同源调用(hollow.vonish.dev/search → hollow.vonish.dev/v1/*,无 CORS)。
+ * HOLLOW API 客户端。
+ * 生产:同源调用(hollow.vonish.dev/search → /v1/*,无 CORS)。
+ * 开发/独立部署:可用 VITE_API_BASE 指向任意 HOLLOW 实例(如 https://hollow.vonish.dev)。
  * 契约见 https://hollow.vonish.dev/docs/api 与 /docs/api-params。
  */
+
+const API_BASE: string = (import.meta.env.VITE_API_BASE as string | undefined) ?? ''
 
 export interface SearchResultItem {
   url: string
@@ -86,7 +90,7 @@ async function post<T>(path: string, body: unknown, timeoutMs = 30000): Promise<
 }
 
 export function searchApi(query: string, scenes: string[], page: number): Promise<SearchResponse> {
-  return post<SearchResponse>('/v1/search', {
+  return post<SearchResponse>(`${API_BASE}/v1/search`, {
     query,
     ...(scenes.length ? { scenes } : {}),
     page,
@@ -95,7 +99,7 @@ export function searchApi(query: string, scenes: string[], page: number): Promis
 
 export function fetchApi(url: string): Promise<FetchResponse> {
   // 阅读模式:单 URL 直取,budget 45s 覆盖升级链;正文截 2 万字符够读
-  return post<FetchResponse>('/v1/fetch', {
+  return post<FetchResponse>(`${API_BASE}/v1/fetch`, {
     urls: url,
     budget: 45,
     max_content_chars: 20000,
