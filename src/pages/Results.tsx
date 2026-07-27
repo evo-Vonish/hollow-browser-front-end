@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import SearchBar from '@/components/SearchBar'
 import SceneChips from '@/components/SceneChips'
-import { ApiError, hostOf, searchApi } from '@/lib/api'
+import { ApiError, hostOf, prefetchFetch, searchApiCached } from '@/lib/api'
 import type { SearchResponse } from '@/lib/api'
 
 type State =
@@ -36,7 +36,7 @@ export default function Results() {
     if (!q) return
     let cancelled = false
     setState({ kind: 'loading' })
-    searchApi(q, scene ? [scene] : [], page)
+    searchApiCached(q, scene ? [scene] : [], page)
       .then((data) => !cancelled && setState({ kind: 'ok', data }))
       .catch((e) => !cancelled && setState({ kind: 'error', error: e instanceof ApiError ? e : new ApiError('未知错误', 'unknown', 0) }))
     return () => {
@@ -118,6 +118,9 @@ export default function Results() {
                 <li key={`${r.url}-${i}`}>
                   <button
                     onClick={() => navigate(readUrl(r.url, r.title))}
+                    onMouseEnter={() => prefetchFetch(r.url)}
+                    onFocus={() => prefetchFetch(r.url)}
+                    onTouchStart={() => prefetchFetch(r.url)}
                     className="group block w-full text-left"
                   >
                     <span className="flex items-center gap-2 font-mono text-[11px] text-ink-2">

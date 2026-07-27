@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { ApiError, fetchApi, hostOf } from '@/lib/api'
+import { ApiError, fetchApiCached, hostOf } from '@/lib/api'
 import type { FetchItem } from '@/lib/api'
 
 type State =
@@ -28,18 +28,30 @@ export default function Reader() {
   const titleParam = params.get('title') ?? ''
   const backTo = `/?q=${encodeURIComponent(params.get('q') ?? '')}${params.get('scene') ? `&scene=${params.get('scene')}` : ''}${params.get('page') ? `&page=${params.get('page')}` : ''}`
   const [state, setState] = useState<State>({ kind: 'loading' })
+  const [stage, setStage] = useState(0) // 加载文案分级:升级链比较慢时管理预期
 
   useEffect(() => {
     if (!url) return
     let cancelled = false
     setState({ kind: 'loading' })
-    fetchApi(url)
+    setStage(0)
+    const t1 = setTimeout(() => !cancelled && setStage(1), 4000)
+    const t2 = setTimeout(() => !cancelled && setStage(2), 10000)
+    fetchApiCached(url)
       .then((d) => !cancelled && setState({ kind: 'ok', item: d.items[0] }))
       .catch((e) => !cancelled && setState({ kind: 'error', error: e instanceof ApiError ? e : new ApiError('未知错误', 'unknown', 0) }))
     return () => {
       cancelled = true
+      clearTimeout(t1)
+      clearTimeout(t2)
     }
   }, [url])
+
+  const STAGE_TEXT = [
+    '抓取 + 净化中…',
+    'static 未出正文,正在启动浏览器渲染…',
+    '仍在渲染/升级,反爬较重的站点会慢一些…',
+  ]
 
   return (
     <div className="min-h-screen">
@@ -68,9 +80,9 @@ export default function Reader() {
         {state.kind === 'loading' && (
           <div className="pt-16 text-center">
             <p className="font-mono text-[13px] text-ink-2">
-              抓取 + 净化中<span className="animate-pulse">…</span>
+              {STAGE_TEXT[stage]}<span className="animate-pulse"> </span>
             </p>
-            <p className="mt-2 font-mono text-[11px] text-ink-2/60">static → dynamic → stealthy 升级链按需升档</p>
+            <p className="mt-2 font-mono text-[11px] text-ink-2/60">static → dynamic → stealthy 升级链按需升档 · 已净化的页面 10 分钟内秒开</p>
           </div>
         )}
 
