@@ -1,20 +1,43 @@
-import { Component } from 'react'
+import { Component, Suspense, lazy } from 'react'
 import type { ErrorInfo, ReactNode } from 'react'
 import { Route, Routes, useSearchParams } from 'react-router-dom'
+import { Toaster } from 'sonner'
 import Home from '@/pages/Home'
 import Results from '@/pages/Results'
-import Reader from '@/pages/Reader'
+
+/* 路由级代码分割:热路径(Home/Results)直载,其余按需(react-markdown 链随之拆出主包) */
+const Reader = lazy(() => import('@/pages/Reader'))
+const Research = lazy(() => import('@/pages/Research'))
+const Batch = lazy(() => import('@/pages/Batch'))
+const Engines = lazy(() => import('@/pages/Engines'))
+
+function PageFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-bg-0">
+      <p className="font-mono text-[12px] text-ink-2">加载页面<span className="animate-pulse">…</span></p>
+    </div>
+  )
+}
 
 /**
- * 单路径门路由(主流搜索引擎式 URL 设计):
- *   /search           → 主页(输入框 + 标题)
- *   /search?q=...     → 搜索结果页
- *   /search?url=...   → 阅读模式(净化);url 与 q 可共存,q 用于"返回结果"
+ * 单路径门路由(主流搜索引擎式 URL 设计,2026-07 定稿):
+ *   /search                     → 主页(输入框 + 标题)
+ *   /search?q=...               → 搜索结果页(&scene&t&safe&lang&inc&exc&eng&page)
+ *   /search?q=...&mode=research → 深研模式(SSE 流式;&rmode&n&budget)
+ *   /search?url=...             → 阅读模式(双路赛制);url 与 q 可共存,q 用于"返回结果"
+ *   /search?urls=a,b,c          → 批量净化(≤10)
+ *   /search?engines             → 引擎注册表浏览
  */
 function Gate() {
   const [params] = useSearchParams()
-  if (params.get('url')) return <Reader />
-  if (params.get('q')) return <Results />
+  if (params.get('urls')) return <Suspense fallback={<PageFallback />}><Batch /></Suspense>
+  if (params.get('url')) return <Suspense fallback={<PageFallback />}><Reader /></Suspense>
+  if (params.get('q')) {
+    return params.get('mode') === 'research'
+      ? <Suspense fallback={<PageFallback />}><Research /></Suspense>
+      : <Results />
+  }
+  if (params.has('engines')) return <Suspense fallback={<PageFallback />}><Engines /></Suspense>
   return <Home />
 }
 
@@ -59,6 +82,13 @@ export default function App() {
           <Route path="*" element={<Gate />} />
         </Routes>
       </ErrorBoundary>
+      <Toaster
+        theme="dark"
+        position="bottom-right"
+        toastOptions={{
+          style: { background: '#0C0F14', border: '1px solid #1C232E', color: '#E8EDF4', fontSize: 13 },
+        }}
+      />
     </div>
   )
 }
