@@ -83,10 +83,10 @@ export default function App() {
         </Routes>
       </ErrorBoundary>
       <Toaster
-        theme="dark"
+        theme="light"
         position="bottom-right"
         toastOptions={{
-          style: { background: '#0C0F14', border: '1px solid #1C232E', color: '#E8EDF4', fontSize: 13 },
+          style: { background: '#FEFDFB', border: '1px solid #E6E1D6', color: '#29251F', fontSize: 13 },
         }}
       />
     </div>

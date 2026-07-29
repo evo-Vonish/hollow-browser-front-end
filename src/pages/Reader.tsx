@@ -152,9 +152,9 @@ export default function Reader() {
           />
         </div>
 
-        {/* clean 路:云端净化 */}
+        {/* clean 路:云端净化(阅读栏:68ch 衬线排版) */}
         <div className={cn('absolute inset-0 overflow-y-auto', shown !== 'clean' && 'invisible')}>
-          <main className="mx-auto max-w-3xl px-4 py-8">
+          <main className="mx-auto max-w-[68ch] px-5 py-10">
             {clean.kind === 'loading' && (
               <div className="pt-16 text-center">
                 <p className="font-mono text-[13px] text-ink-2">
@@ -178,11 +178,11 @@ export default function Reader() {
             {clean.kind === 'ok' &&
               (clean.item.fetch_status === 'ok' ? (
                 <article>
-                  <div className="mb-6 flex flex-wrap items-center gap-2">
+                  <div className="mb-8 flex flex-wrap items-center gap-2.5">
                     <span className={cn('rounded-full border px-2.5 py-0.5 font-mono text-[10px]', TIER_STYLE[clean.item.engine_used]?.cls)}>
                       {TIER_STYLE[clean.item.engine_used]?.label ?? clean.item.engine_used}
                     </span>
-                    <span className="font-mono text-[11px] text-ink-2">{clean.item.word_count ?? '—'} 字符 · 净化阅读模式</span>
+                    <span className="font-mono text-[11px] text-ink-2">{clean.item.word_count ?? '—'} 字符</span>
                     <button
                       onClick={() => setMdView(mdView === 'md' ? 'txt' : 'md')}
                       className="ml-auto rounded-full border border-line px-2.5 py-0.5 font-mono text-[10px] text-ink-2 transition-colors hover:border-signal hover:text-signal"
@@ -191,17 +191,17 @@ export default function Reader() {
                     </button>
                   </div>
 
-                  <h1 className="font-display text-[26px] font-bold leading-snug text-ink-0">
+                  <h1 className="font-serif text-[30px] font-bold leading-[1.4] text-ink-0">
                     {clean.item.title || titleParam || clean.item.url}
                   </h1>
 
                   {(clean.item.highlights ?? []).length > 0 && (
-                    <div className="mt-6 rounded-md border border-line bg-bg-1 p-4">
+                    <div className="mt-8 border-l-2 border-signal/40 pl-5">
                       <p className="font-mono text-[11px] uppercase tracking-wider text-signal">要点</p>
-                      <ul className="mt-2 space-y-1.5">
+                      <ul className="mt-2.5 space-y-2">
                         {(clean.item.highlights ?? []).map((h, i) => (
-                          <li key={i} className="flex gap-2 text-[13px] leading-relaxed text-ink-1">
-                            <span className="shrink-0 font-mono text-signal/70">{i + 1}.</span>
+                          <li key={i} className="flex gap-2.5 font-serif text-[15px] leading-[1.85] text-ink-1">
+                            <span className="shrink-0 font-mono text-[12px] text-signal/60">{i + 1}.</span>
                             {h}
                           </li>
                         ))}
@@ -209,13 +209,13 @@ export default function Reader() {
                     </div>
                   )}
 
-                  <div className="mt-8">
+                  <div className="mt-9">
                     {mdView === 'md' ? (
                       <Markdown>{clean.item.content ?? ''}</Markdown>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="space-y-5">
                         {(clean.item.content ?? '').split(/\n{2,}/).map((para, i) => (
-                          <p key={i} className="text-[15px] leading-[1.9] text-ink-1">{para}</p>
+                          <p key={i} className="font-serif text-[16.5px] leading-[1.95] text-ink-1">{para}</p>
                         ))}
                       </div>
                     )}

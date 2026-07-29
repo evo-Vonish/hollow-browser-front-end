@@ -16,15 +16,15 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex flex-1 flex-col items-center justify-center px-4 pb-24">
-        {/* HOLLOW 描边字标 */}
+        {/* HOLLOW 衬线描边字标 */}
         <h1
           className="select-none font-display text-[64px] font-bold leading-none tracking-tight sm:text-[88px]"
-          style={{ WebkitTextStroke: '1.5px #34D399', color: 'transparent' }}
+          style={{ WebkitTextStroke: '1.5px #2E7D5B', color: 'transparent' }}
         >
           HOLLOW
         </h1>
-        <p className="mt-4 text-center text-[14px] text-ink-2">
-          343 源召回 · 三档抓取 · 净化阅读 —— 自托管深度研究 API 的搜索界面
+        <p className="mt-5 text-center text-[14px] text-ink-2">
+          343 源召回 · 三档抓取 · 净化阅读
         </p>
 
         <div className="mt-10 w-full max-w-xl">

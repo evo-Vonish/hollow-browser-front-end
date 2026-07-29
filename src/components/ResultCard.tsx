@@ -26,7 +26,7 @@ export default function ResultCard({ item: r, onOpen, selected, onToggleSelect }
             'absolute -left-9 top-1 flex size-5 items-center justify-center rounded border transition-colors',
             'max-lg:hidden',
             selected
-              ? 'border-signal bg-signal text-[#06281D]'
+              ? 'border-signal bg-signal text-[#F7F5EF]'
               : 'border-line bg-bg-1 text-transparent hover:border-line-strong',
           )}
         >
@@ -48,11 +48,11 @@ export default function ResultCard({ item: r, onOpen, selected, onToggleSelect }
           <span className="shrink-0 text-signal/70">· {r.engine}</span>
           {r.published_date && <span className="shrink-0">· {r.published_date.slice(0, 10)}</span>}
         </span>
-        <span className="mt-1 block text-[17px] leading-snug text-cyan transition-colors group-hover:text-signal group-hover:underline">
+        <span className="mt-1.5 block font-serif text-[18px] leading-snug text-cyan transition-colors group-hover:underline">
           {r.title || r.url}
         </span>
         {r.snippet && (
-          <span className="mt-1 block text-[13px] leading-relaxed text-ink-1">
+          <span className="mt-1.5 block text-[13.5px] leading-relaxed text-ink-1">
             {truncate(r.snippet, 220)}
           </span>
         )}

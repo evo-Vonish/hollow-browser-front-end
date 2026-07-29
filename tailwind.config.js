@@ -5,27 +5,27 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // HOLLOW design tokens (design.md §2)
+        // HOLLOW 纸质设计 tokens(2026-07 重构:纸质/轻盈/低噪音/轻快/阅读)
         bg: {
-          0: '#07090C',
-          1: '#0C0F14',
-          2: '#12161D',
+          0: '#FAF8F3', // 纸面
+          1: '#FEFDFB', // 纸卡
+          2: '#F2EEE5', // 淡墨(骨架/悬停)
         },
         line: {
-          DEFAULT: '#1C232E',
-          strong: '#2A3442',
+          DEFAULT: '#E6E1D6', // 发丝线
+          strong: '#D4CDBC',
         },
         ink: {
-          0: '#E8EDF4',
-          1: '#9AA7B8',
-          2: '#5C6B7E',
+          0: '#29251F', // 暖墨
+          1: '#5C5546', // 次级墨
+          2: '#9A917E', // 淡墨
         },
-        signal: '#34D399',
-        cyan: '#22D3EE',
-        amber: '#FBBF24',
-        danger: '#F87171',
-        violet: '#A78BFA',
-        'tier-removed': '#5C6B7E',
+        signal: '#2E7D5B', // 墨绿(品牌/成功)
+        cyan: '#3F6E9E',   // 墨蓝(链接)
+        amber: '#B45309',  // 赭(警示)
+        danger: '#B3392F', // 朱(危险)
+        violet: '#7C6BAE',
+        'tier-removed': '#9A917E',
         // shadcn/ui legacy tokens (kept so src/components/ui keeps compiling)
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -72,8 +72,9 @@ module.exports = {
         },
       },
       fontFamily: {
-        display: ['"Space Grotesk"', '"Noto Sans SC"', 'system-ui', 'sans-serif'],
+        display: ['"Noto Serif SC"', 'Georgia', '"Songti SC"', 'serif'],
         sans: ['Inter', '"Noto Sans SC"', 'system-ui', 'sans-serif'],
+        serif: ['Georgia', '"Noto Serif SC"', '"Songti SC"', 'serif'],
         mono: ['"JetBrains Mono"', '"Noto Sans SC"', 'ui-monospace', 'monospace'],
       },
       maxWidth: {
@@ -88,8 +89,9 @@ module.exports = {
         xs: "calc(var(--radius) - 6px)",
       },
       boxShadow: {
-        xs: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-        hover: "0 8px 24px rgb(0 0 0 / .35)",
+        xs: '0 1px 2px 0 rgb(41 37 31 / 0.04)',
+        // 轻盈:阴影只用于浮层,且极浅
+        hover: '0 6px 24px -6px rgb(41 37 31 / .12)',
       },
       transitionTimingFunction: {
         // design.md §5: cubic-bezier(0.22, 1, 0.36, 1)
