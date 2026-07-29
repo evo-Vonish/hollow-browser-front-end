@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import Logo from '@/components/Logo'
 import SearchBar from '@/components/SearchBar'
 import ModeTabs from '@/components/ModeTabs'
 
@@ -26,8 +27,8 @@ export default function AppHeader({ q, mode, buildModeUrl, onSearch, searching, 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-bg-0/90 backdrop-blur">
       <div className="page-col flex items-center gap-3 pt-3">
-        <Link to="/" className="shrink-0 font-display text-[19px] font-bold tracking-tight text-signal" aria-label="回主页">
-          HOLLOW
+        <Link to="/" className="shrink-0" aria-label="回主页">
+          <Logo size="md" />
         </Link>
         <div className="min-w-0 flex-1">
           <SearchBar initial={q} onSubmit={onSearch} size="sm" loading={searching} />
