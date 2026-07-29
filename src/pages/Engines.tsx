@@ -78,7 +78,7 @@ export default function Engines() {
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-line bg-bg-0/90 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3">
+        <div className="page-col-wide flex items-center gap-3 py-3">
           <Button variant="outline" size="md" asChild className="shrink-0">
             <Link to="/">
               <ArrowLeft className="size-3.5" />
@@ -94,7 +94,7 @@ export default function Engines() {
             </p>
           )}
         </div>
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-1.5 px-4 pb-3">
+        <div className="page-col-wide flex flex-wrap items-center gap-1.5 pb-3">
           <div className="relative">
             <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-ink-2" />
             <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="搜引擎名/备注…" className="w-56 pl-8" />
@@ -121,7 +121,7 @@ export default function Engines() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-6">
+      <main className="page-col-wide py-6">
         {error && <EmptyState tone="warn" title="注册表加载失败" detail={`[${error.code}] ${error.message}`} />}
 
         {!engines && !error && (

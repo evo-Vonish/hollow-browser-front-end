@@ -12,10 +12,10 @@ interface Props {
   onToggleSelect?: (url: string) => void
 }
 
-/** 搜索结果卡:hover/focus/触摸预取净化,点击秒开;支持批量多选 */
+/** 搜索结果卡:hover/focus/触摸预取净化,点击秒开;批量勾选为行内流(与卡同列) */
 export default function ResultCard({ item: r, onOpen, selected, onToggleSelect }: Props) {
   return (
-    <li className="group relative">
+    <li className="group flex items-start gap-3">
       {onToggleSelect && (
         <button
           type="button"
@@ -23,14 +23,13 @@ export default function ResultCard({ item: r, onOpen, selected, onToggleSelect }
           aria-label={selected ? '取消选择' : '选择'}
           aria-pressed={selected}
           className={cn(
-            'absolute -left-9 top-1 flex size-5 items-center justify-center rounded border transition-colors',
-            'max-lg:hidden',
+            'mt-1 flex size-[18px] shrink-0 items-center justify-center rounded border transition-colors',
             selected
               ? 'border-signal bg-signal text-[#F7F5EF]'
-              : 'border-line bg-bg-1 text-transparent hover:border-line-strong',
+              : 'border-line-strong bg-transparent text-transparent hover:border-ink-2',
           )}
         >
-          <Check className="size-3.5" strokeWidth={3} />
+          <Check className="size-3" strokeWidth={3} />
         </button>
       )}
       <button
@@ -38,7 +37,7 @@ export default function ResultCard({ item: r, onOpen, selected, onToggleSelect }
         onMouseEnter={() => prefetchFetch(r.url)}
         onFocus={() => prefetchFetch(r.url)}
         onTouchStart={() => prefetchFetch(r.url)}
-        className="block w-full text-left"
+        className="min-w-0 flex-1 text-left"
       >
         <span className="flex items-center gap-2 font-mono text-[11px] text-ink-2">
           <span className="inline-flex size-4 items-center justify-center rounded-sm bg-bg-2 text-[9px] text-ink-1">

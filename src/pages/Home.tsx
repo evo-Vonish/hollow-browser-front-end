@@ -27,7 +27,7 @@ export default function Home() {
           343 源召回 · 三档抓取 · 净化阅读
         </p>
 
-        <div className="mt-10 w-full max-w-xl">
+        <div className="mt-10 w-full max-w-2xl">
           <SearchBar onSubmit={go} autoFocus size="lg" />
           <div className="mt-4 flex justify-center">
             <SceneChips value={scene} onChange={setScene} />
@@ -35,7 +35,7 @@ export default function Home() {
         </div>
 
         {/* 三能力入口 */}
-        <div className="mt-10 grid w-full max-w-xl grid-cols-3 gap-2 max-sm:grid-cols-1">
+        <div className="mt-10 grid w-full max-w-2xl grid-cols-3 gap-2 max-sm:grid-cols-1">
           <Capability
             icon={<Zap className="size-4 text-signal" />}
             title="搜索 + 净化阅读"

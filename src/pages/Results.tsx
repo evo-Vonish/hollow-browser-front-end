@@ -108,15 +108,22 @@ export default function Results() {
 
   return (
     <div className="min-h-screen">
-      <AppHeader q={q} mode="search" buildModeUrl={buildModeUrl} onSearch={(next) => writeParams({ q: next })} searching={state.kind === 'loading'}>
-        <SceneChips value={scene} onChange={(s) => writeParams({ scene: s })} />
-        <div className="flex flex-wrap items-center gap-1.5">
-          <FilterBar value={filters} onChange={(f) => writeParams({ f })} />
-          {meta && <EngineLedgerDrawer meta={meta} />}
-        </div>
-      </AppHeader>
+      <AppHeader
+        q={q}
+        mode="search"
+        buildModeUrl={buildModeUrl}
+        onSearch={(next) => writeParams({ q: next })}
+        searching={state.kind === 'loading'}
+        chips={<SceneChips value={scene} onChange={(s) => writeParams({ scene: s })} nowrap />}
+        toolbar={
+          <div className="flex flex-wrap items-center gap-1.5">
+            <FilterBar value={filters} onChange={(f) => writeParams({ f })} />
+            {meta && <EngineLedgerDrawer meta={meta} />}
+          </div>
+        }
+      />
 
-      <main className="mx-auto max-w-3xl px-4 py-6 lg:pl-14">
+      <main className="page-col py-6">
         {state.kind === 'loading' && <ResultSkeleton />}
 
         {state.kind === 'error' && (

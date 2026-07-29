@@ -45,7 +45,7 @@ export default function Batch() {
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-line bg-bg-0/90 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
+        <div className="page-col flex items-center gap-3 py-3">
           <Button variant="outline" size="md" asChild className="shrink-0">
             <Link to={backTo}>
               <ArrowLeft className="size-3.5" />
@@ -70,7 +70,7 @@ export default function Batch() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-6">
+      <main className="page-col py-6">
         {urls.length === 0 && <EmptyState title="没有要净化的 URL" detail="在结果页勾选结果后点「批量净化」进来。" />}
 
         {state.kind === 'loading' && urls.length > 0 && (

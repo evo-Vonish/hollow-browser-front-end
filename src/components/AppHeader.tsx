@@ -10,24 +10,34 @@ interface Props {
   buildModeUrl: (mode: 'search' | 'research') => string
   onSearch: (q: string) => void
   searching?: boolean
-  /** 第二行内容(场景 chips / 工具栏) */
-  children?: ReactNode
+  /** 第二行:场景 chips(跟在模式 tabs 后,可横向滚动) */
+  chips?: ReactNode
+  /** 第三行:工具行(过滤器 / 深研控制台) */
+  toolbar?: ReactNode
 }
 
-/** Results / Research 共用顶栏:标 + 搜索框 + 模式 tab + 第二行插槽 */
-export default function AppHeader({ q, mode, buildModeUrl, onSearch, searching, children }: Props) {
+/**
+ * Results / Research 共用顶栏 —— 三行结构,与正文严格同栏(page-col):
+ *   行1 logo + 搜索框
+ *   行2 模式 tabs + 场景 chips(溢出横向滚动,不换行)
+ *   行3 工具行(过滤器/深研控制台,允许换行)
+ */
+export default function AppHeader({ q, mode, buildModeUrl, onSearch, searching, chips, toolbar }: Props) {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-bg-0/90 backdrop-blur">
-      <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
-        <Link to="/" className="shrink-0 font-display text-[18px] font-bold tracking-tight text-signal" aria-label="回主页">
+      <div className="page-col flex items-center gap-3 pt-3">
+        <Link to="/" className="shrink-0 font-display text-[19px] font-bold tracking-tight text-signal" aria-label="回主页">
           HOLLOW
         </Link>
-        <ModeTabs mode={mode} buildUrl={buildModeUrl} />
         <div className="min-w-0 flex-1">
           <SearchBar initial={q} onSubmit={onSearch} size="sm" loading={searching} />
         </div>
       </div>
-      {children && <div className="mx-auto max-w-3xl space-y-2.5 px-4 pb-2.5">{children}</div>}
+      <div className="page-col mt-2.5 flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <ModeTabs mode={mode} buildUrl={buildModeUrl} />
+        {chips}
+      </div>
+      {toolbar && <div className="page-col mt-1.5 pb-2.5">{toolbar}</div>}
     </header>
   )
 }

@@ -80,9 +80,9 @@ export default function Reader() {
 
   return (
     <div className="flex h-screen flex-col">
-      {/* 顶栏:返回 + 赛制 tab + 域名 + 原站 */}
+      {/* 顶栏:返回 + 赛制 tab + 域名 + 原站(与正文同栏) */}
       <header className="shrink-0 border-b border-line bg-bg-0/90 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center gap-2 px-4 py-2.5">
+        <div className="page-col flex flex-wrap items-center gap-2 py-2.5">
           <Button variant="outline" size="md" asChild className="shrink-0">
             <Link to={backTo}>
               <ArrowLeft className="size-3.5" />
@@ -152,9 +152,9 @@ export default function Reader() {
           />
         </div>
 
-        {/* clean 路:云端净化(阅读栏:68ch 衬线排版) */}
+        {/* clean 路:云端净化(阅读栏:与顶栏同列) */}
         <div className={cn('absolute inset-0 overflow-y-auto', shown !== 'clean' && 'invisible')}>
-          <main className="mx-auto max-w-[68ch] px-5 py-10">
+          <main className="page-col py-10">
             {clean.kind === 'loading' && (
               <div className="pt-16 text-center">
                 <p className="font-mono text-[13px] text-ink-2">

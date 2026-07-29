@@ -16,7 +16,7 @@ export default function ModeTabs({ mode, buildUrl }: Props) {
     { id: 'research' as const, label: '深研', icon: FlaskConical },
   ]
   return (
-    <div className="flex rounded-md border border-line p-0.5" role="tablist" aria-label="模式">
+    <div className="flex shrink-0 rounded-md border border-line p-0.5" role="tablist" aria-label="模式">
       {items.map((it) => {
         const active = mode === it.id
         const Icon = it.icon

@@ -130,70 +130,75 @@ export default function Research() {
 
   return (
     <div className="min-h-screen">
-      <AppHeader q={q} mode="research" buildModeUrl={buildModeUrl} onSearch={(next) => writeParams({ q: next })} searching={live}>
-        <SceneChips value={scene} onChange={(s) => writeParams({ scene: s || null })} />
-
-        {/* 深研控制台:模式 / top_n / 预算 / 停止 */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <div className="flex rounded-md border border-line p-0.5" role="radiogroup" aria-label="深研模式">
-            {RESEARCH_MODES.map((m) => (
-              <button
-                key={m.id}
-                role="radio"
-                aria-checked={rmode === m.id}
-                title={m.desc}
-                onClick={() => writeParams({ rmode: m.id === 'balanced' ? null : m.id })}
-                className={cn(
-                  'rounded px-2.5 py-1 font-mono text-[11px] transition-colors',
-                  rmode === m.id ? 'bg-bg-2 text-signal' : 'text-ink-2 hover:text-ink-1',
-                )}
-              >
-                {m.id}
-              </button>
-            ))}
-          </div>
-
-          <label className="flex items-center gap-2 font-mono text-[11px] text-ink-2">
-            正文条数 <span className="tabular w-5 text-signal">{topN}</span>
-            <Slider
-              className="w-28"
-              value={[topN]}
-              min={1}
-              max={20}
-              step={1}
-              onValueChange={([v]) => writeParams({ n: v === 5 ? null : String(v) })}
-            />
-          </label>
-
-          <Select value={budget || 'none'} onValueChange={(v) => writeParams({ budget: v === 'none' ? null : v })}>
-            <SelectTrigger aria-label="整单预算">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {BUDGET_OPTIONS.map((b) => (
-                <SelectItem key={b.id || 'none'} value={b.id || 'none'}>{b.label}</SelectItem>
+      <AppHeader
+        q={q}
+        mode="research"
+        buildModeUrl={buildModeUrl}
+        onSearch={(next) => writeParams({ q: next })}
+        searching={live}
+        chips={<SceneChips value={scene} onChange={(s) => writeParams({ scene: s || null })} nowrap />}
+        toolbar={
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <div className="flex rounded-md border border-line p-0.5" role="radiogroup" aria-label="深研模式">
+              {RESEARCH_MODES.map((m) => (
+                <button
+                  key={m.id}
+                  role="radio"
+                  aria-checked={rmode === m.id}
+                  title={m.desc}
+                  onClick={() => writeParams({ rmode: m.id === 'balanced' ? null : m.id })}
+                  className={cn(
+                    'rounded px-2.5 py-1 font-mono text-[11px] transition-colors',
+                    rmode === m.id ? 'bg-bg-2 text-signal' : 'text-ink-2 hover:text-ink-1',
+                  )}
+                >
+                  {m.id}
+                </button>
               ))}
-            </SelectContent>
-          </Select>
+            </div>
 
-          {live ? (
-            <Button variant="danger" size="sm" onClick={() => handleRef.current?.cancel()}>
-              <CircleStop className="size-3.5" />
-              停止
-            </Button>
-          ) : (
-            <Button variant="outline" size="sm" onClick={() => setRunTick((t) => t + 1)}>
-              <RotateCcw className="size-3.5" />
-              重跑
-            </Button>
-          )}
+            <label className="flex items-center gap-2 font-mono text-[11px] text-ink-2">
+              正文条数 <span className="tabular w-5 text-signal">{topN}</span>
+              <Slider
+                className="w-28"
+                value={[topN]}
+                min={1}
+                max={20}
+                step={1}
+                onValueChange={([v]) => writeParams({ n: v === 5 ? null : String(v) })}
+              />
+            </label>
 
-          <span className="font-mono text-[11px] tabular text-ink-2">{fmtMs(elapsed)}</span>
-          {searchMeta && <EngineLedgerDrawer meta={searchMeta} />}
-        </div>
-      </AppHeader>
+            <Select value={budget || 'none'} onValueChange={(v) => writeParams({ budget: v === 'none' ? null : v })}>
+              <SelectTrigger aria-label="整单预算">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {BUDGET_OPTIONS.map((b) => (
+                  <SelectItem key={b.id || 'none'} value={b.id || 'none'}>{b.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-      <main className="mx-auto max-w-3xl px-4 py-6">
+            {live ? (
+              <Button variant="danger" size="sm" onClick={() => handleRef.current?.cancel()}>
+                <CircleStop className="size-3.5" />
+                停止
+              </Button>
+            ) : (
+              <Button variant="outline" size="sm" onClick={() => setRunTick((t) => t + 1)}>
+                <RotateCcw className="size-3.5" />
+                重跑
+              </Button>
+            )}
+
+            <span className="font-mono text-[11px] tabular text-ink-2">{fmtMs(elapsed)}</span>
+            {searchMeta && <EngineLedgerDrawer meta={searchMeta} />}
+          </div>
+        }
+      />
+
+      <main className="page-col py-6">
         {/* 阶段条 */}
         <PhaseBar phase={phase} selected={selected} arrived={items.length} okCount={okCount} target={topN} />
 

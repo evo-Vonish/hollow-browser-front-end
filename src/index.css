@@ -96,6 +96,15 @@
 }
 
 @layer components {
+  /* 全站搜索页统一内容列:顶栏与正文严格同栏(2026-07 布局重排) */
+  .page-col {
+    @apply mx-auto w-full max-w-2xl px-5;
+  }
+  /* 宽列(引擎注册表等网格页) */
+  .page-col-wide {
+    @apply mx-auto w-full max-w-5xl px-5;
+  }
+
   /* Eyebrow 标签（全站统一） */
   .eyebrow {
     @apply font-mono text-xs text-ink-2 uppercase;
