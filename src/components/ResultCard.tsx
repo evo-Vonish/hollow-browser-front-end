@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react'
 import type { SearchResultItem } from '@/lib/sdk'
-import { hostInitial, prefetchFetch, shortHost, truncate } from '@/lib/sdk'
+import { hostInitial, prefetchFetch, READER_EXTRAS, shortHost, truncate } from '@/lib/sdk'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -34,9 +34,9 @@ export default function ResultCard({ item: r, onOpen, selected, onToggleSelect }
       )}
       <button
         onClick={() => onOpen(r.url, r.title)}
-        onMouseEnter={() => prefetchFetch(r.url)}
-        onFocus={() => prefetchFetch(r.url)}
-        onTouchStart={() => prefetchFetch(r.url)}
+        onMouseEnter={() => prefetchFetch(r.url, READER_EXTRAS)}
+        onFocus={() => prefetchFetch(r.url, READER_EXTRAS)}
+        onTouchStart={() => prefetchFetch(r.url, READER_EXTRAS)}
         className="min-w-0 flex-1 text-left"
       >
         <span className="flex items-center gap-2 font-mono text-[11px] text-ink-2">
@@ -47,14 +47,28 @@ export default function ResultCard({ item: r, onOpen, selected, onToggleSelect }
           <span className="shrink-0 text-signal/70">· {r.engine}</span>
           {r.published_date && <span className="shrink-0">· {r.published_date.slice(0, 10)}</span>}
         </span>
-        <span className="mt-1.5 block font-serif text-[18px] leading-snug text-cyan transition-colors group-hover:underline">
-          {r.title || r.url}
-        </span>
-        {r.snippet && (
-          <span className="mt-1.5 block text-[13.5px] leading-relaxed text-ink-1">
-            {truncate(r.snippet, 220)}
+        <span className="mt-1.5 flex items-start gap-3">
+          <span className="min-w-0 flex-1">
+            <span className="block font-serif text-[18px] leading-snug text-cyan transition-colors group-hover:underline">
+              {r.title || r.url}
+            </span>
+            {r.snippet && (
+              <span className="mt-1.5 block text-[13.5px] leading-relaxed text-ink-1">
+                {truncate(r.snippet, 220)}
+              </span>
+            )}
           </span>
-        )}
+          {/* 媒体模式前置:图片类结果带缩略图(2026-07-30) */}
+          {(r.thumbnail || r.img_src) && (
+            <img
+              src={r.thumbnail ?? r.img_src ?? undefined}
+              alt=""
+              loading="lazy"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+              className="mt-0.5 size-16 shrink-0 rounded-md border border-line object-cover"
+            />
+          )}
+        </span>
       </button>
     </li>
   )

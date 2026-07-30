@@ -21,12 +21,49 @@ export interface EngineFailure {
   reason: string
 }
 
+/** 熔断剔除的引擎(2026-07-30 引擎健康退避;probing=true 为到期探测放行) */
+export interface DegradedEngine {
+  engine: string
+  reason: string
+  retry_after_s: number
+  probing: boolean
+}
+
+/** 页面外链(api/extractor.py;internal=同 host 或子域) */
+export interface AssetLink {
+  url: string
+  text: string | null
+  internal: boolean
+}
+
+/** 页面媒体资源(source: tag=页面标签 | meta=og:/twitter:) */
+export interface AssetMedia {
+  url: string
+  type: 'image' | 'video' | 'audio' | 'embed'
+  source: 'tag' | 'meta'
+  alt?: string | null
+}
+
+/** 正文小图内联账目(api/embedder.py;失败一律保留原 URL 引用) */
+export interface EmbedStats {
+  candidates: number
+  embedded: number
+  skipped_too_large: number
+  skipped_fetch_failed: number
+  skipped_ssrf: number
+  skipped_bad_ct: number
+  skipped_quota: number
+  error?: string
+}
+
 /** 搜索账目(与 SearchMeta 对齐) */
 export interface SearchMeta {
   engines_requested: string[]
   engines_used: string[]
   engines_failed: EngineFailure[]
   engines_no_results: string[]
+  /** 熔断剔除/探测中的引擎;空数组=无熔断(2026-07-30) */
+  engines_degraded: DegradedEngine[]
   results_total: number
   took_ms: number
   q_sanitized: boolean
@@ -65,6 +102,10 @@ export interface SearchResultItem {
   relevance: number
   snippet: string
   published_date: string | null
+  /** 媒体模式前置(2026-07-30):images 类引擎图直链;其余 null */
+  img_src: string | null
+  /** 缩略图;缺省 null */
+  thumbnail: string | null
 }
 
 export interface SearchResponse {
@@ -106,6 +147,16 @@ export interface FetchItem {
   purified?: boolean | null
   error: string | null
   fetched_at?: string | null
+  /** 外链清单(仅 include_links 请求时存在;2026-07-29) */
+  links?: AssetLink[] | null
+  /** 媒体清单(仅 include_media 请求时存在) */
+  media?: AssetMedia[] | null
+  /** 小图内联账目(仅 embed_images 请求时存在) */
+  embed?: EmbedStats | null
+  /** 外链自动展开的子孙树(仅 expand_links>0 时存在;子孙条目带 depth 层号) */
+  children?: FetchItem[]
+  /** 展开层号(父条目隐式 0,仅子孙条目携带) */
+  depth?: number
 }
 
 export interface FetchMeta {
@@ -119,6 +170,8 @@ export interface FetchMeta {
   no_content: number
   /** 因整单预算切断的条数(⊆ timeout) */
   budget_cut: number
+  /** 外链展开实际抓取的子孙总数(2026-07-29) */
+  expanded: number
   took_ms: number
 }
 
@@ -155,6 +208,10 @@ export interface ResearchItem {
   /** 正文中 query 最相关的几句(词汇抽取,无模型) */
   highlights: string[]
   highlight_scores: number[]
+  /** 外链/媒体/内联账目(仅对应 include_* 请求时存在;2026-07-29) */
+  links?: AssetLink[] | null
+  media?: AssetMedia[] | null
+  embed?: EmbedStats | null
 }
 
 export interface ResearchFetchMeta {
@@ -270,6 +327,20 @@ export interface FetchParams {
   max_content_chars?: number
   concurrency?: number
   budget?: number
+  /** 抽取外链清单 [{url,text,internal}](2026-07-29) */
+  include_links?: boolean
+  /** 抽取媒体清单 [{url,type,source,alt?}] */
+  include_media?: boolean
+  /** 净化正文保留图片引用(![alt](url),夹在原位置;2026-07-30) */
+  include_images?: boolean
+  /** 小图(≤32KB)转 data URI 内联正文,正文自包含(隐含 include_images) */
+  embed_images?: boolean
+  /** 每页自动跟进的外链数(0=关,≤10);子孙进 children 树 */
+  expand_links?: number
+  /** 展开递归层数(1=只跟一层,≤3) */
+  expand_depth?: number
+  /** 展开范围:internal 只跟站内(默认) | all 任意外链 */
+  expand_scope?: 'internal' | 'all'
 }
 
 export interface ResearchParams extends SearchParams {
@@ -283,4 +354,12 @@ export interface ResearchParams extends SearchParams {
   timeout?: number
   escalate?: boolean
   purify?: boolean
+  /** 抽取每条来源的外链清单(2026-07-29) */
+  include_links?: boolean
+  /** 抽取每条来源的媒体清单 */
+  include_media?: boolean
+  /** 净化正文保留图片引用 */
+  include_images?: boolean
+  /** 小图转 data URI 内联正文(隐含 include_images) */
+  embed_images?: boolean
 }

@@ -45,6 +45,23 @@ export default function EngineLedgerDrawer({ meta, trigger }: Props) {
                 bang/filter 防护改写过查询词(q_sanitized)
               </p>
             )}
+            {/* 健康熔断(2026-07-30):连续失败的引擎被自适应剔除,到期探测自动恢复 */}
+            {(meta.engines_degraded?.length ?? 0) > 0 && (
+              <div className="mt-3 rounded-md border border-line bg-bg-2/60 px-3 py-2">
+                <p className="font-mono text-[11px] uppercase tracking-wider text-ink-2">熔断退避 · {meta.engines_degraded.length}</p>
+                <ul className="mt-1.5 space-y-1">
+                  {meta.engines_degraded.map((d) => (
+                    <li key={d.engine} className="font-mono text-[11px] leading-relaxed text-ink-2">
+                      <span className="text-amber">{d.engine}</span>
+                      {d.probing
+                        ? <span className="text-signal"> · 探测恢复中</span>
+                        : <span> · {d.retry_after_s}s 后探测</span>}
+                      <span className="block break-all text-ink-2/60">{d.reason}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </section>
 
           <LedgerSection

@@ -38,6 +38,9 @@ export default function Research() {
   const rmode = (params.get('rmode') ?? 'balanced') as ResearchMode
   const topN = Math.max(1, Math.min(20, Number(params.get('n') ?? '5') || 5))
   const budget = params.get('budget') ?? ''
+  // 页面资产与正文图片开关(2026-07-30):assets=外链/媒体清单,imgs=正文图片引用
+  const assets = params.get('assets') === '1'
+  const imgs = params.get('imgs') === '1'
 
   const [phase, setPhase] = useState<Phase>('connecting')
   const [searchMeta, setSearchMeta] = useState<SearchMeta | null>(null)
@@ -69,6 +72,9 @@ export default function Research() {
         mode: rmode,
         top_n: topN,
         budget: budget ? Number(budget) : undefined,
+        include_links: assets || undefined,
+        include_media: assets || undefined,
+        include_images: imgs || undefined,
       },
       (evt) => {
         if (evt.event === 'research.search.completed') {
@@ -93,7 +99,7 @@ export default function Research() {
       }
     })
     return () => handle.cancel()
-  }, [q, scene, rmode, topN, budget, runTick])
+  }, [q, scene, rmode, topN, budget, assets, imgs, runTick])
 
   /* 计时(仅进行中) */
   useEffect(() => {
@@ -102,7 +108,7 @@ export default function Research() {
     setElapsed(0)
     const t = setInterval(() => setElapsed(Date.now() - t0), 200)
     return () => clearInterval(t)
-  }, [live, q, scene, rmode, topN, budget])
+  }, [live, q, scene, rmode, topN, budget, assets, imgs])
 
   const writeParams = (patch: Record<string, string | null>) => {
     const p = new URLSearchParams(params)
@@ -179,6 +185,25 @@ export default function Research() {
                 ))}
               </SelectContent>
             </Select>
+
+            {/* 资产开关(2026-07-30):外链/媒体清单 + 正文图片引用 */}
+            {([
+              { k: 'assets', on: assets, label: '外链/媒体', title: '抽取每条来源的外链与媒体资源清单' },
+              { k: 'imgs', on: imgs, label: '正文图片', title: '正文原位置保留图片引用' },
+            ] as const).map((o) => (
+              <button
+                key={o.k}
+                onClick={() => writeParams({ [o.k]: o.on ? null : '1' })}
+                title={o.title}
+                aria-pressed={o.on}
+                className={cn(
+                  'rounded-full border px-2.5 py-0.5 font-mono text-[11px] transition-colors',
+                  o.on ? 'border-signal/50 bg-signal/10 text-signal' : 'border-line text-ink-2 hover:text-ink-1',
+                )}
+              >
+                {o.label}
+              </button>
+            ))}
 
             {live ? (
               <Button variant="danger" size="sm" onClick={() => handleRef.current?.cancel()}>
@@ -366,6 +391,42 @@ function ResearchItemCard({ item: it, onOpenReader }: { item: ResearchItem; onOp
         <div className="mt-3 max-h-[480px] overflow-y-auto rounded-md border border-line bg-bg-0 p-4">
           <Markdown>{it.content ?? ''}</Markdown>
         </div>
+      )}
+
+      {/* 页面资产(assets 开关开启且有数据才显示;2026-07-30) */}
+      {ok && ((it.links?.length ?? 0) > 0 || (it.media?.length ?? 0) > 0) && (
+        <details className="mt-3 rounded-md border border-line/70 bg-bg-0/60 px-3 py-2">
+          <summary className="cursor-pointer select-none font-mono text-[10px] uppercase tracking-wider text-ink-2 hover:text-ink-1">
+            资产 · 外链 {it.links?.length ?? 0} · 媒体 {it.media?.length ?? 0}
+          </summary>
+          {(it.media?.length ?? 0) > 0 && (
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              {it.media!.filter((m) => m.type === 'image').slice(0, 8).map((m, i) => (
+                <a key={i} href={m.url} target="_blank" rel="noreferrer">
+                  <img src={m.url} alt={m.alt ?? ''} loading="lazy"
+                       className="size-14 rounded border border-line object-cover"
+                       onError={(e) => { (e.target as HTMLImageElement).closest('a')!.style.display = 'none' }} />
+                </a>
+              ))}
+            </div>
+          )}
+          {(it.links?.length ?? 0) > 0 && (
+            <ul className="mt-2.5 space-y-1">
+              {it.links!.slice(0, 10).map((l, i) => (
+                <li key={i} className="truncate">
+                  <a href={l.url} target="_blank" rel="noreferrer"
+                     className="text-[12px] text-cyan underline decoration-cyan/25 underline-offset-2 hover:decoration-cyan/70">
+                    {l.text || shortHost(l.url)}
+                  </a>
+                  {!l.internal && <span className="ml-1.5 font-mono text-[9px] text-amber/80">↗</span>}
+                </li>
+              ))}
+              {it.links!.length > 10 && (
+                <li className="font-mono text-[10px] text-ink-2/60">…共 {it.links!.length} 条</li>
+              )}
+            </ul>
+          )}
+        </details>
       )}
     </li>
   )

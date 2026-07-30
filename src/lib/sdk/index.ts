@@ -55,13 +55,24 @@ export function fetchApi(params: FetchParams): Promise<FetchResponse> {
   return post<FetchResponse>('/v1/fetch', params, (params.budget ?? 45) * 1000 + 15000)
 }
 
+/** 阅读模式附加项:外链/媒体清单、正文图片引用、小图内联、外链展开(2026-07-29/30) */
+export type FetchExtras = Partial<
+  Pick<FetchParams, 'include_links' | 'include_media' | 'include_images' | 'embed_images' |
+                      'expand_links' | 'expand_depth' | 'expand_scope'>
+>
+
+/** 阅读页标准资产参数(Reader 请求与结果卡预取共用,缓存键必须一致) */
+export const READER_EXTRAS: FetchExtras = { include_links: true, include_media: true, include_images: true }
+
 /** 阅读模式:单 URL 直取,budget 45s 覆盖升级链;正文截 2 万字符够读 */
-export function fetchOne(url: string): Promise<FetchResponse> {
-  return fetchApi({ urls: url, budget: 45, max_content_chars: 20000 })
+export function fetchOne(url: string, extras: FetchExtras = {}): Promise<FetchResponse> {
+  const budget = extras.expand_links ? 90 : 45  // 展开要多抓子孙页,预算放宽
+  return fetchApi({ urls: url, budget, max_content_chars: 20000, ...extras })
 }
 
-export function fetchOneCached(url: string): Promise<FetchResponse> {
-  return cached(`f:${url}`, () => fetchOne(url))
+export function fetchOneCached(url: string, extras: FetchExtras = {}): Promise<FetchResponse> {
+  const key = `f:${url}:${JSON.stringify(extras)}`
+  return cached(key, () => fetchOne(url, extras))
 }
 
 /** 批量净化(≤10 条,网关上限 FETCH_URLS_MAX=10) */
@@ -70,9 +81,10 @@ export function fetchBatch(urls: string[]): Promise<FetchResponse> {
 }
 
 /** hover/focus 预取:结果卡悬停时后台净化,点击秒开(结果丢弃,仅暖缓存) */
-export function prefetchFetch(url: string) {
-  if (!cacheGet(`f:${url}`) && !isInflight(`f:${url}`)) {
-    fetchOneCached(url).catch(() => undefined)
+export function prefetchFetch(url: string, extras: FetchExtras = {}) {
+  const key = `f:${url}:${JSON.stringify(extras)}`
+  if (!cacheGet(key) && !isInflight(key)) {
+    fetchOneCached(url, extras).catch(() => undefined)
   }
 }
 
@@ -110,6 +122,11 @@ export function researchStream(
   if (params.max_content_chars) body.max_content_chars = params.max_content_chars
   if (params.include_domains?.length) body.include_domains = params.include_domains
   if (params.exclude_domains?.length) body.exclude_domains = params.exclude_domains
+  // 页面资产与正文图片(2026-07-29/30)
+  if (params.include_links) body.include_links = true
+  if (params.include_media) body.include_media = true
+  if (params.include_images) body.include_images = true
+  if (params.embed_images) body.embed_images = true
 
   const done = postSSE<ResearchEvent>('/v1/research', body, onEvent, { signal: ctrl.signal })
   return { cancel: () => ctrl.abort(), done }

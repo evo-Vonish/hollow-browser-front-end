@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
-import { ApiError, fetchOneCached, hostOf, STATUS_LABEL, TIER_STYLE } from '@/lib/sdk'
-import type { FetchItem } from '@/lib/sdk'
+import { ApiError, fetchOneCached, hostOf, READER_EXTRAS, STATUS_LABEL, TIER_STYLE } from '@/lib/sdk'
+import type { AssetLink, AssetMedia, FetchItem } from '@/lib/sdk'
 import Markdown from '@/components/Markdown'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty'
@@ -55,7 +55,8 @@ export default function Reader() {
     setStage(0)
     const t1 = setTimeout(() => !cancelled && setStage(1), 4000)
     const t2 = setTimeout(() => !cancelled && setStage(2), 10000)
-    fetchOneCached(url)
+    // 阅读页天然要图与外链:正文图片引用夹正文(include_images)+ 外链/媒体清单(2026-07-30)
+    fetchOneCached(url, READER_EXTRAS)
       .then((d) => !cancelled && setClean({ kind: 'ok', item: d.items[0] }))
       .catch((e) =>
         !cancelled &&
@@ -220,6 +221,10 @@ export default function Reader() {
                       </div>
                     )}
                   </div>
+
+                  {/* 页面资产:媒体墙 + 本页外链(2026-07-30,有数据才显示) */}
+                  <MediaWall media={clean.item.media} />
+                  <LinkPanel links={clean.item.links} />
                 </article>
               ) : (
                 <CleanFailCard
@@ -233,6 +238,67 @@ export default function Reader() {
         </div>
       </div>
     </div>
+  )
+}
+
+/** 媒体墙:页面图片资源小图网格(image 类型,前 12 张;点击新标签看原图) */
+function MediaWall({ media }: { media?: AssetMedia[] | null }) {
+  const images = (media ?? []).filter((m) => m.type === 'image').slice(0, 12)
+  if (!images.length) return null
+  return (
+    <details className="mt-12 rounded-md border border-line bg-bg-1 px-4 py-3">
+      <summary className="cursor-pointer select-none font-mono text-[11px] uppercase tracking-wider text-ink-2 hover:text-ink-1">
+        本页媒体 · {images.length}{(media?.length ?? 0) > 12 ? `（共 ${media!.length}）` : ''}
+      </summary>
+      <div className="mt-3 grid grid-cols-3 gap-2.5 sm:grid-cols-4">
+        {images.map((m, i) => (
+          <a key={i} href={m.url} target="_blank" rel="noreferrer" title={m.alt ?? m.url}
+             className="group block overflow-hidden rounded border border-line bg-bg-0">
+            <img src={m.url} alt={m.alt ?? ''} loading="lazy"
+                 className="aspect-[4/3] w-full object-cover transition-opacity group-hover:opacity-85"
+                 onError={(e) => { (e.target as HTMLImageElement).closest('a')!.style.display = 'none' }} />
+          </a>
+        ))}
+      </div>
+    </details>
+  )
+}
+
+/** 本页外链:站内/站外分组清单(前 30 条;internal 无标记,站外带 ↗) */
+function LinkPanel({ links }: { links?: AssetLink[] | null }) {
+  const all = links ?? []
+  if (!all.length) return null
+  const internal = all.filter((l) => l.internal).slice(0, 20)
+  const external = all.filter((l) => !l.internal).slice(0, 10)
+  const Row = ({ l }: { l: AssetLink }) => (
+    <li className="truncate">
+      <a href={l.url} target="_blank" rel="noreferrer"
+         className="text-[13px] text-cyan underline decoration-cyan/25 underline-offset-2 hover:decoration-cyan/70">
+        {l.text || hostOf(l.url)}
+      </a>
+      <span className="ml-2 font-mono text-[10px] text-ink-2/60">{hostOf(l.url)}</span>
+    </li>
+  )
+  return (
+    <details className="mt-3 rounded-md border border-line bg-bg-1 px-4 py-3">
+      <summary className="cursor-pointer select-none font-mono text-[11px] uppercase tracking-wider text-ink-2 hover:text-ink-1">
+        本页外链 · {all.length}{all.length > 30 ? '（站内 20 + 站外 10 节选）' : ''}
+      </summary>
+      <div className="mt-3 space-y-4">
+        {internal.length > 0 && (
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-wider text-signal/80">站内 · {internal.length}</p>
+            <ul className="mt-1.5 space-y-1.5">{internal.map((l, i) => <Row key={i} l={l} />)}</ul>
+          </div>
+        )}
+        {external.length > 0 && (
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-wider text-amber/90">站外 ↗ · {external.length}</p>
+            <ul className="mt-1.5 space-y-1.5">{external.map((l, i) => <Row key={i} l={l} />)}</ul>
+          </div>
+        )}
+      </div>
+    </details>
   )
 }
 
