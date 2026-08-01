@@ -9,7 +9,7 @@
 | | 本仓库（浏览器） | HOLLOW 主仓库（搜索 API） |
 |---|---|---|
 | 性质 | 纯静态前端（React SPA），无服务端代码 | 服务端（FastAPI + vendored SearXNG + 三档抓取） |
-| 职责 | 搜索 / 深研流式 / 双路赛制阅读 / 批量净化 / 引擎注册表、会话缓存、hover 预取 | 召回（`/v1/search`）、抓取净化（`/v1/fetch`）、深研 SSE（`/v1/research`）、注册表（`/v1/engines` `/v1/scenes`） |
+| 职责 | 搜索 / 深研流式 / 双路赛制阅读 / 批量净化 / 引擎注册表、页面资产展示（外链/媒体/正文图）、会话缓存、hover 预取 | 召回（`/v1/search`）、抓取净化（`/v1/fetch`，含 PDF 抽取/外链展开/图片内联）、深研 SSE（`/v1/research`）、注册表（`/v1/engines` `/v1/scenes`） |
 | 依赖关系 | 仅通过 HTTPS 调用**公开** API，不含密钥、不含内部接口 | 不感知前端存在 |
 | 部署 | 任意静态托管（当前 Caddy `handle_path /search*`） | 独立 systemd 服务 |
 
@@ -20,13 +20,15 @@
 | 页面 | URL | 能力 |
 |---|---|---|
 | 主页 | `/search` | 标题 + 输入框 + 9 场景 chip + 三能力入口 |
-| 结果页 | `/search?q=` | **全参数工具栏**（时间范围/安全搜索/语言/域过滤/引擎点名）、引擎账目抽屉、infobox 即时答案、分页、hover 预取、批量多选 |
-| 深研模式 | `/search?q=&mode=research` | **SSE 流式**：搜索账目 → 逐条正文抵达（档位/要点/可展开 Markdown）→ 汇总账；fast/balanced/thorough 三模式、top_n 滑杆、整单预算、中途停止 |
-| 阅读模式 | `/search?url=` | **双路赛制**：本地 iframe 原网页（Cookie 互通、与服务器无关）× 云端净化正文；先就绪先展示、净化失败自动切原框、tab 无缝切换、Markdown/纯文本切换 |
+| 结果页 | `/search?q=` | **全参数工具栏**（时间范围/安全搜索/语言/域过滤/引擎点名）、**结果缩略图**（引擎 img_src/thumbnail 透传，加载失败自动隐藏）、引擎账目抽屉、infobox 即时答案、分页、hover 预取、批量多选 |
+| 深研模式 | `/search?q=&mode=research` | **SSE 流式**：搜索账目 → 逐条正文抵达（档位/要点/可展开 Markdown）→ 汇总账；fast/balanced/thorough 三模式、top_n 滑杆、整单预算、中途停止；**资产开关**：`assets=1` 外链/媒体（条目正文后附外链清单+媒体小图条）、`imgs=1` 正文图片引用 |
+| 阅读模式 | `/search?url=` | **双路赛制**：本地 iframe 原网页（Cookie 互通、与服务器无关）× 云端净化正文；先就绪先展示、净化失败自动切原框、tab 无缝切换、Markdown/纯文本切换；净化路自动带**正文图片引用 + 本页媒体墙（前 12 小图，点开原图）+ 本页外链栏（站内/站外分组，↗ 标记）**，均 details 折叠降噪 |
 | 批量净化 | `/search?urls=a,b,c` | ≤10 条一次调用，逐条状态/档位/字数如实入账，去重与预算切断显式入账 |
 | 引擎注册表 | `/search?engines` | 343 源浏览：状态（default/pool/removed）/梯队/场景过滤 + 文本搜索，removed 带除名原因 |
 
-横切能力：URL 即状态（可分享可后退）、会话缓存（10min TTL + inflight 去重）、hover/focus 预取秒开、路由级代码分割（主包 146KB gzip，Markdown 链按需）、键盘快捷键（`/` 聚焦、Esc 清空）、ErrorBoundary 诚实卡兜底、sonner toast。
+横切能力：URL 即状态（可分享可后退）、会话缓存（10min TTL + inflight 去重，缓存键含资产参数——预取与阅读页共用同一份）、hover/focus 预取秒开、路由级代码分割（主包 146KB gzip，Markdown 链按需）、键盘快捷键（`/` 聚焦、Esc 清空）、ErrorBoundary 诚实卡兜底、sonner toast。
+
+**引擎账目抽屉**如实呈现每次搜索/深研的引擎级账单：使用/失败（原因+耗时）之外，**熔断退避段**列出被健康熔断的引擎（原因、`Ns 后探测` / `探测恢复中`）——引擎被风控封禁时用户看到的是显式告知而非凭空少结果。
 
 ## 架构（为客户端铺路）
 
